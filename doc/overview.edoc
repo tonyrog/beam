@@ -1,0 +1,7 @@
+@author  Tony Rogvall <tony@rogvall.se>
+@version 1.0
+@title BEAM emulator written in Erlang.
+@doc This is code is made for the fun of it. But may be
+used to get an understanding for how BEAM works.
+
+
