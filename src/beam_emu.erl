@@ -327,255 +327,162 @@ wait_timeout(S,{f,IL},Src) ->
 %%
 %% @doc opcode=27
 %%
-m_plus(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) + fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+m_plus(S,Fail,A1,A2,Reg) -> 
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A+B end).
 
 %%
 %% @doc opcode=28
 %%
 m_minus(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) - fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A-B end).
 
 %%
 %% @doc opcode=29
 %%
 m_times(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) * fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A*B end).
 
 %%
 %% @doc opcode=30
 %%
 m_div(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) / fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A / B end).
 
 %%
 %% @doc opcode=31
 %%
 int_div(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) div fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A div B end).
+
 %%
 %% @doc opcode=32
 %%
 int_rem(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) rem fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A rem B end).
+
 %%
 %% @doc opcode=33
 %%
 int_band(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) band fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A band B end).
+
 %%	
 %% @doc opcode=34
 %%
 int_bor(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) bor fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A bor B end).
+
 %%
 %% @doc opcode=35
 %%
 int_bxor(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) bxor fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A bxor B end).
+
 %%
 %% @doc opcode=36
 %%
 int_bsl(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) bsl fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A bsl B end).
+
 %%
 %% @doc opcode=37
 %%
 int_bsr(S,Fail,A1,A2,Reg) ->
-    case catch (fetch(A1,S) bsr fetch(A2,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    binary_op(S,Fail,A1,A2,Reg,fun(A,B) -> A bsr B end).
+
 %%
 %% @doc opcode=38
 %%
 int_bnot(S,Fail,A1,Reg) ->
-    case catch (bnot fetch(A1,S)) of
-	{'EXIT',Reason} -> 
-	    fail(S,Fail,exit,Reason);
-	Val ->
-	    next(store(Reg,Val,S))
-    end.
+    unary_op(S,Fail,A1,Reg,fun(A) -> bnot A end).
+
 %%
 %% @doc opcode=39 
 %%
-is_lt(S,Fail,A1,A2) ->
-    case fetch(A1,S) < fetch(A2,S) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+is_lt(S,Fail,A1,A2) -> 
+    compare_op(S,Fail,A1,A2,fun(A,B) -> A < B end).
+
+
 %%
 %% @doc opcode=40
 %%
 is_ge(S,Fail,A1,A2) ->
-    case fetch(A1,S) >= fetch(A2,S) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    compare_op(S,Fail,A1,A2,fun(A,B) -> A >= B end).
+
 %%
 %% @doc opcode=41
 %%
 is_eq(S,Fail,A1,A2) ->
-    case fetch(A1,S) == fetch(A2,S) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    compare_op(S,Fail,A1,A2,fun(A,B) -> A == B end).
+
 %%
 %% @doc opcode=42
 %%
 is_ne(S,Fail,A1,A2) ->
-    case fetch(A1,S) /= fetch(A2,S) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    compare_op(S,Fail,A1,A2,fun(A,B) -> A /= B end).
+
 %%
 %% @doc opcode=43
 %%
 is_eq_exact(S,Fail,A1,A2) ->
-    case fetch(A1,S) =:= fetch(A2,S) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    compare_op(S,Fail,A1,A2,fun(A,B) -> A =:= B end).
+
 %%
 %% @doc opcode=44
 %%
 is_ne_exact(S,Fail,A1,A2) ->
-    case fetch(A1,S) =/= fetch(A2,S) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    compare_op(S,Fail,A1,A2,fun(A,B) -> A =/= B end).
+
 %%
 %% @doc opcode=45
 %%
 is_integer(S,Fail,A1) ->
-    case is_integer(fetch(A1,S))of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_integer(A) end).
+
 %%
 %% @doc opcode=46
 %%
 is_float(S,Fail,A1) ->
-    case is_float(fetch(A1,S)) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_float(A) end).
 
 %% @doc opcode=47
 is_number(S,Fail,A1) ->
-    case is_number(fetch(A1,S))of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_number(A) end).
+
 
 %% @doc opcode=48
 is_atom(S,Fail,A1) ->
-    case is_atom(fetch(A1,S))of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_atom(A) end).
 
 %% @doc opcode=49
 is_pid(S,Fail,A1) ->
-    case is_pid(fetch(A1,S))of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_pid(A) end).
 
 %% @doc opcode=50
 is_reference(S,Fail,A1) ->
-    case is_reference(fetch(A1,S))of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_reference(A) end).
 
 %% @doc opcode=51
 is_port(S,Fail,A1) ->
-    case is_port(fetch(A1,S))of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_port(A) end).
+
 
 %% @doc opcode=52
 is_nil(S,Fail,A1) ->
-    case fetch(A1,S) of
-	[] -> next(S);
-	_ -> fail(S,Fail)
-    end.
+    test_op(S,Fail,A1,fun(A) -> A =:= [] end).
 
 %% @doc opcode=53
 is_binary(S,Fail,A1) ->
-    case is_binary(fetch(A1,S)) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_binary(A) end).
 
 %% @doc opcode=55
 is_list(S,Fail,A1) ->
-    case is_list(fetch(A1,S)) of
-	false -> fail(S,Fail);
-	true -> next(S)
-    end.
+    test_op(S,Fail,A1,fun(A) -> is_list(A) end).
 
 %% @doc opcode=56
 is_nonempty_list(S,Fail,A1) ->
-    case fetch(A1,S) of
-	[_|_] -> next(S);
-	_ -> fail(S,Fail)
-    end.
-
+    test_op(S,Fail,A1,fun([_|_]) -> true;
+			 (_) -> false end).
 %%
 %% @doc opcode=57
 %%
@@ -1317,6 +1224,37 @@ level() ->
 level0() ->
     0.
 
+%% @private
+unary_op(S,Fail,A1,Reg,Op) ->    
+    case catch Op(fetch(A1,S)) of
+	{'EXIT',Reason} -> 
+	    fail(S,Fail,exit,Reason);
+	Val ->
+	    next(store(Reg,Val,S))
+    end.
+
+%% @private
+binary_op(S,Fail,A1,A2,Reg,Op) ->
+    case catch Op(fetch(A1,S),fetch(A2,S)) of
+	{'EXIT',Reason} -> 
+	    fail(S,Fail,exit,Reason);
+	Val ->
+	    next(store(Reg,Val,S))
+    end.
+
+%% @private
+compare_op(S,Fail,A1,A2,Op) ->
+    case Op(fetch(A1,S),fetch(A2,S)) of
+	false -> fail(S,Fail);
+	true -> next(S)
+    end.
+
+%% @private
+test_op(S,Fail,A1,Op) ->
+    case Op(fetch(A1,S)) of
+	false -> fail(S,Fail);
+	true -> next(S)
+    end.
 
 %% @private    
 call_ext_(S,erlang,'throw',1) ->
@@ -1366,16 +1304,21 @@ call_ext_last_(S,Mod,Fun,Arity,Dealloc) ->
     end.
 
 %% @private
-fetch({x,I}, #s { x=X }) -> element(I+1, X);
-fetch({y,I}, #s { y=Y }) -> lists:nth(I+1,Y);
-fetch({fr,I}, #s { f=F }) -> element(I+1, F);
-fetch({atom,C},_S) -> C;
-fetch({integer,C},_S) -> C;
-fetch({float,C},_S) -> C;
-fetch(nil,_S) -> [];
-fetch({literal,Lit},_S) -> Lit;
-fetch({string,String},_S) -> String;
-fetch(Src, S) ->
+fetch(Reg, State) ->
+    Res = fetch_(Reg, State),
+    io:format("fetch: ~w = ~p\n", [Reg, Res]),
+    Res.
+
+fetch_({x,I}, #s { x=X }) -> element(I+1, X);
+fetch_({y,I}, #s { y=Y }) -> lists:nth(I+1,Y);
+fetch_({fr,I}, #s { f=F }) -> element(I+1, F);
+fetch_({atom,C},_S) -> C;
+fetch_({integer,C},_S) -> C;
+fetch_({float,C},_S) -> C;
+fetch_(nil,_S) -> [];
+fetch_({literal,Lit},_S) -> Lit;
+fetch_({string,String},_S) -> String;
+fetch_(Src, S) ->
     erlang:display({fetch,Src}),
     exit({function_clause,S}).
 
