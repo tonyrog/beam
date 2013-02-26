@@ -10,7 +10,7 @@
 %%
 -export([run/3]).
 
-%% Internal API to dicover the meta level ;-)
+%% Internal API to discover the meta level ;-)
 -export([level/0, level0/0]).
 
 %%
@@ -653,7 +653,7 @@ if_end(S) ->
 
 %%
 %% @doc opcode=74
-%5
+%%
 case_end(S,CaseVal) ->
     fail(S,{f,0},error,{case_clause,fetch(CaseVal,S)}).
 
