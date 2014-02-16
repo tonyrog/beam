@@ -1,7 +1,6 @@
 {application, beam,
  [{description, "BEAM emulator written in Erlang"},
-  {vsn, "%VSN%"},
-  {modules, [beam_emu, beam_load]},
+  {vsn, git},
   {mod,{beam_app,[]}},
   {env, []},
   {applications,[kernel,stdlib]}
