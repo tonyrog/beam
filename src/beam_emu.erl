@@ -1154,6 +1154,16 @@ bs_put_utf32(S, Fail, {field_flags,Flags},Arg3) ->
 on_load(S) ->
     {not_implemented,149}.
 
+%% recv_mark/1 -> 150;
+%% recv_set/1 -> 151;
+%% gc_bif3/7 -> 152;
+%% line/1 -> 153;
+%% put_map_assoc/5 -> 154;
+%% put_map_exact/5 -> 155;
+%% is_map/2 -> 156;
+%% has_map_field/3 -> 157;
+%% get_map_element/4 -> 158;
+
 %%
 %% @spec run(Module::atom(), Function::atom(), Args::[term()]) -> term()
 %%

@@ -46,6 +46,7 @@ $(APP_TARGET): $(APP_SRC) ../vsn.mk
 
 -include depend.mk
 
+# does not work for SMP - message.erl is implmented using prim_eval
 ../ebin/message.beam: message.S
 	erlc -o ../ebin message.S
 
