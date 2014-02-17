@@ -55,7 +55,7 @@ wrap(File, Mod) ->
 		   {move,{atom,Mod},{x,0}},
 		   {call_ext_only,2,{extfunc,erlang,get_module_info,2}}]}
 		 ],
-	    Exp = map(fun({function,Name,Arity,Entry,Code}) ->
+	    Exp = map(fun({function,Name,Arity,_Entry,_Code}) ->
 			      {Name,Arity}
 		      end, Asm),
 	    Code = {Module,Exp,[],Asm,L+4},
@@ -94,6 +94,9 @@ load_code([], _Pos, LCode, Store) ->
 
 load_fcode([{label,L}|FCode],FAE,Code,Pos,LCode,Store) ->
     Store1 = dict:store(L, Pos, Store),
+    load_fcode(FCode,FAE,Code,Pos,LCode,Store1);
+load_fcode([{line,L}|FCode],FAE,Code,Pos,LCode,Store) ->
+    Store1 = dict:store({line,L}, Pos, Store),
     load_fcode(FCode,FAE,Code,Pos,LCode,Store1);
 load_fcode([Instr|FCode],FAE,Code,Pos,LCode,Store) ->
     load_fcode(FCode,FAE,Code,Pos+1,[Instr|LCode],Store);

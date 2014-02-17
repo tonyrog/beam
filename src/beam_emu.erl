@@ -17,38 +17,182 @@
 %% Instruction set. The first argument is the Beam Instruction State
 %% then the instruction arguments (so -1 on arity to the orgininal)
 %%
--export([func_info/4, int_code_end/1,
-	 call/3, call_last/4, call_only/3, call_ext/3, call_ext_last/4,
-	 bif/5,	 allocate/3, allocate_heap/4, allocate_zero/3,
-	 allocate_heap_zero/4, test_heap/3,  init/2,
-	 deallocate/2, return/1,
-	 send/1, remove_message/1, timeout/1, loop_rec/3, loop_rec_end/2,
-	 wait/2, wait_timeout/3]).
--export([m_plus/5, m_minus/5, m_times/5, m_div/5,
-	 int_div/5, int_rem/5, int_band/5, int_bor/5, int_bxor/5,
-	 int_bsl/5, int_bsr/5, int_bnot/4]).
--export([is_lt/4, is_ge/4, is_eq/4, is_ne/4, is_eq_exact/4, is_ne_exact/4,
-	 is_integer/3, is_float/3, is_number/3, is_atom/3, is_pid/3,
-	 is_reference/3, is_port/3, is_nil/3, is_binary/3,
-	 is_list/3, is_nonempty_list/3, is_tuple/3,
-	 test_arity/4, select_val/4, select_tuple_arity/4,
-	 jump/2, 'catch'/3, catch_end/2, move/3,
-	 get_list/4, get_tuple_element/4, set_tuple_element/4,
-	 put_string/4, put_list/4, put_tuple/3, put/2,
-	 badmatch/2, if_end/1, case_end/2, call_fun/2,
-	 is_function/3, call_ext_only/3]).
--export([bs_put_integer/6, bs_put_binary/6, bs_put_float/6, 
-	 bs_put_string/3, bs_need_buf/2]).
--export([fclearerror/1, fcheckerror/2]).
--export([fmove/3, fconv/3, fadd/5, fsub/5, fmul/5, fdiv/5, fnegate/4]).
--export([make_fun2/1, 'try'/3, try_end/2, try_case/2, try_case_end/2,
-	 raise/3]).
--export([bs_init2/7, bs_bits_to_bytes/4, bs_add/4]).
--export([apply/2, apply_last/3]).
--export([is_boolean/3, is_function2/4]).
--export([bs_skip_bits2/6]).
+
+-export([label/2]).              %% 1
+-export([func_info/4]).          %% 2
+-export([int_code_end/1]).       %% 3
+-export([call/3]).               %% 4
+-export([call_last/4]).          %% 5
+-export([call_only/3]).          %% 6
+-export([call_ext/3]).           %% 7
+-export([call_ext_last/4]).      %% 8
+%%-export([bif0/3]).               %% 9
+%%-export([bif1/5]).               %% 10
+%%-export([bif2/6]).               %% 11
+-export([bif/5]).
+-export([allocate/3]).           %% 12
+-export([allocate_heap/4]).      %% 13
+-export([allocate_zero/3]).      %% 14
+-export([allocate_heap_zero/4]). %% 15
+-export([test_heap/3]).          %% 16
+-export([init/2]).               %% 17
+-export([deallocate/2]).         %% 18
+-export([return/1]).             %% 19
+-export([send/1]).               %% 20
+-export([remove_message/1]).     %% 21
+-export([timeout/1]).            %% 22
+-export([loop_rec/3]).           %% 23
+-export([loop_rec_end/2]).       %% 24
+-export([wait/2]).               %% 25
+-export([wait_timeout/3]).       %% 26
+
+-export([m_plus/5]).             %% 27*
+-export([m_minus/5]).            %% 28*
+-export([m_times/5]).            %% 29*
+-export([m_div/5]).              %% 30*
+-export([int_div/5]).            %% 31*
+-export([int_rem/5]).            %% 32*
+-export([int_band/5]).           %% 33*
+-export([int_bor/5]).            %% 34*
+-export([int_bxor/5]).           %% 35*
+-export([int_bsl/5]).            %% 36*
+-export([int_bsr/5]).            %% 37*
+-export([int_bnot/4]).           %% 38*
+
+-export([is_lt/4]).              %% 39
+-export([is_ge/4]).              %% 40
+-export([is_eq/4]).              %% 41
+-export([is_ne/4]).              %% 42
+-export([is_eq_exact/4]).        %% 43
+-export([is_ne_exact/4]).        %% 44
+-export([is_integer/3]).         %% 45
+-export([is_float/3]).           %% 46
+-export([is_number/3]).          %% 47
+-export([is_atom/3]).            %% 48
+-export([is_pid/3]).             %% 49
+-export([is_reference/3]).       %% 50
+-export([is_port/3]).            %% 51
+-export([is_nil/3]).             %% 52
+-export([is_binary/3]).          %% 53
+-export([is_constant/3]).        %% 54*
+-export([is_list/3]).            %% 55
+-export([is_nonempty_list/3]).   %% 56
+-export([is_tuple/3]).           %% 57
+-export([test_arity/4]).         %% 58
+-export([select_val/4]).         %% 59
+-export([select_tuple_arity/4]). %% 60
+-export([jump/2]).               %% 61
+-export(['catch'/3]).            %% 62
+-export([catch_end/2]).          %% 63
+-export([move/3]).               %% 64
+-export([get_list/4]).           %% 65
+-export([get_tuple_element/4]).  %% 66
+-export([set_tuple_element/4]).  %% 67
+-export([put_string/4]).         %% 68*
+-export([put_list/4]).           %% 69
+-export([put_tuple/3]).          %% 70
+-export([put/2]).                %% 71
+-export([badmatch/2]).           %% 72
+-export([if_end/1]).             %% 73
+-export([case_end/2]).           %% 74
+-export([call_fun/2]).           %% 75
+-export([make_fun/4]).           %% 76*
+-export([is_function/3]).        %% 77
+-export([call_ext_only/3]).      %% 78
+
+
+%% not generated since?
+-export([bs_start_match/3]).     %% 79*
+-export([bs_get_integer/3]).     %% 80*
+-export([bs_get_float/3]).       %% 81*
+-export([bs_get_binary/3]).      %% 82*
+-export([bs_skip_bits/3]).       %% 83*
+-export([bs_test_tail/3]).       %% 84*
+-export([bs_save/2]).            %% 85*
+-export([bs_restore/2]).         %% 86*
+-export([bs_init/3]).            %% 87*
+-export([bs_final/3]).           %% 88*
+
+-export([bs_put_integer/6]).     %% 89
+-export([bs_put_binary/6]).      %% 90
+-export([bs_put_float/6]).       %% 91
+-export([bs_put_string/3]).      %% 92
+-export([bs_need_buf/2]).        %% 93*
+
+-export([fclearerror/1]).        %% 94
+-export([fcheckerror/2]).        %% 95
+
+-export([fmove/3]).              %% 96
+-export([fconv/3]).              %% 97
+-export([fadd/5]).               %% 98
+-export([fsub/5]).               %% 99
+-export([fmul/5]).               %% 100
+-export([fdiv/5]).               %% 101
+-export([fnegate/4]).            %% 102
+
+-export([make_fun2/1]).          %% 103*
+-export(['try'/3]).              %% 104*
+-export([try_end/2]).            %% 105*
+-export([try_case/2]).           %% 106*
+-export([try_case_end/2]).       %% 107*
+-export([raise/3]).              %% 108*
+
+-export([bs_init2/7]).           %% 109
+-export([bs_bits_to_bytes/4]).   %% 110*
+-export([bs_add/4]).             %% 111
+-export([apply/2]).              %% 112
+-export([apply_last/3]).         %% 113
+
+-export([is_boolean/3]).         %% 114
+-export([is_function2/4]).       %% 115
+
+-export([bs_start_match2/6]).    %% 116*
+-export([bs_get_integer2/8]).    %% 117*
+-export([bs_get_float2/8]).      %% 118*
+-export([bs_get_binary2/8]).     %% 119*
+-export([bs_skip_bits2/6]).      %% 120*
+-export([bs_test_tail2/4]).      %% 121*
+-export([bs_save2/3]).           %% 122*
+-export([bs_restore2/3]).        %% 123*
+%%-export([gc_bif1/6]).            %% 124
+%%-export([gc_bif2/7]).            %% 125
 -export([gc_bif/6]).
--export([is_bitstr/3]).
+-export([bs_final2/3]).          %% 126*
+-export([bs_bits_to_bytes2/3]).  %% 127*
+-export([put_literal/3]).        %% 128*
+-export([is_bitstr/3]).          %% 129
+-export([bs_context_to_binary/2]). %% 130
+-export([bs_test_unit/4]).       %% 131
+
+-export([bs_match_string/5]).    %% 132
+-export([bs_init_writable/1]).   %% 133
+-export([bs_append/9]).          %% 134
+-export([bs_private_append/7]).  %% 135
+-export([trim/3]).               %% 136
+-export([bs_init_bits/7]).       %% 137
+-export([bs_get_utf8/6]).        %% 138
+-export([bs_skip_utf8/5]).       %% 139
+-export([bs_get_utf16/6]).       %% 140
+-export([bs_skip_utf16/5]).      %% 141
+-export([bs_get_utf32/6]).       %% 142
+-export([bs_skip_utf32/5]).      %% 143
+-export([bs_utf8_size/4]).       %% 144
+-export([bs_put_utf8/4]).        %% 145
+-export([bs_utf16_size/4]).      %% 146
+-export([bs_put_utf16/4]).       %% 147
+-export([bs_put_utf32/4]).       %% 148
+
+-export([on_load/1]).            %% 149
+-export([recv_mark/2]).          %% 150
+-export([recv_set/2]).           %% 151
+%% -export([gc_bif3/8]).            %% 152
+-export([line/2]).               %% 153
+
+-export([put_map_assoc/6]).      %% 154*
+-export([put_map_exact/6]).      %% 155*
+-export([is_map/3]).             %% 156*
+-export([has_map_field/4]).      %% 157*
+-export([get_map_element/5]).    %% 158*
 	 
 	 
 -import(lists, [map/2, foldr/3, reverse/1]).
@@ -78,6 +222,8 @@
 	   cs=[],    %% catch stack 
 	   ferror,   %% floating point error code...
 	   timer,    %% timeout timer
+	   mark,     %% message mark
+	   saved,    %% message saved position
 	   tuple_dst,
 	   tuple_arity = 0,
 	   tuple_data = [],
@@ -86,6 +232,12 @@
 	  }).
 
 
+%% @doc opcode=1
+%%   End interpreted code
+%%
+label(S,L) ->
+    io:format("meta op: label ~w\n",[L]),  %% exit?
+    next(S).
 
 %%
 %% @spec func_info(_S::beam_state(),Module::atom(),F::atom(),
@@ -103,6 +255,7 @@ func_info(S, M,F,Arity) ->
 %%   End interpreted code
 %%
 int_code_end(S) ->
+    io:format("meta op: int_code_end\n"),  %% exit?
     next(S).
 
 %%
@@ -110,7 +263,7 @@ int_code_end(S) ->
 %%
 %% @doc opcode=4
 %%
-call(S, Arity, {f,I}) ->
+call(S, _Arity, {f,I}) ->
     Ys = [S#s.i+1 | S#s.y],
     dispatch(S#s { i=I, y=Ys}).
 
@@ -119,14 +272,14 @@ call(S, Arity, {f,I}) ->
 %%
 %% @doc opcode=5
 %%
-call_last(S, Arity, {f,I}, Dealloc) ->
+call_last(S, _Arity, {f,I}, Dealloc) ->
     Ys = deallocate_(Dealloc, S#s.y),
     dispatch(S#s { i=I, y=Ys}).
 
 %%
 %% @doc opcode=6
 %%
-call_only(S, Arity,{f,I1}) ->
+call_only(S, _Arity,{f,I1}) ->
     dispatch(S#s { i=I1}).
 
 %%
@@ -277,7 +430,7 @@ loop_rec(S,{f,IL},Dst) ->
 %% @doc opcode=24
 %%
 loop_rec_end(S,{f,IL}) ->
-    Ignore = message:next(),
+    _Ignore = message:next(),
     dispatch(S#s {i=IL}).
 
 %%
@@ -475,6 +628,10 @@ is_nil(S,Fail,A1) ->
 is_binary(S,Fail,A1) ->
     test_op(S,Fail,A1,fun(A) -> is_binary(A) end).
 
+%% @doc opcode=54 
+is_constant(_S,_Fail,_A1) ->
+    {not_implemented, 54}.    
+
 %% @doc opcode=55
 is_list(S,Fail,A1) ->
     test_op(S,Fail,A1,fun(A) -> is_list(A) end).
@@ -600,7 +757,7 @@ set_tuple_element(S,Val,Dst,Ix) ->
 %%
 %% @doc opcode=68
 %%
-put_string(S,Len,{string,String},Dst) ->
+put_string(S,_Len,{string,String},Dst) ->
     next(store(Dst,String,S)).
 
 %%
@@ -673,7 +830,7 @@ call_fun(S,Arity) ->
 %%
 %% @doc opcode=76
 %%
-make_fun(S, Arg1, Arg2, Arg3) ->
+make_fun(_S, _Arg1, _Arg2, _Arg3) ->
     {not_implemented, 76}.
 
 %%
@@ -696,57 +853,57 @@ call_ext_only(S,Arity,{extfunc,Mod,Fun,Arity}) ->
 %%
 %% @doc opcode=79
 %%
-bs_start_match(S,Fail,Reg) ->
+bs_start_match(_S,_Fail,_Reg) ->
     {not_implemented,79}.
 %%
 %% @doc opcode=80
 %%
-bs_get_integer(S,Fail,[Arg,N,Flags,Dst]) ->
+bs_get_integer(_S,_Fail,[_Arg,_N,_Flags,_Dst]) ->
     {not_implemented,80}.
 %%
 %% @doc opcode=81
 %%
-bs_get_float(S,Fail,[Arg,N,Flags,Dst]) ->
+bs_get_float(_S,_Fail,[_Arg,_N,_Flags,_Dst]) ->
     {not_implemented,81}.
 %%
 %% @doc opcode=82
 %%
-bs_get_binary(S,Fail,[Arg,N,Flags,Dst]) ->
+bs_get_binary(_S,_Fail,[_Arg,_N,_Flags,_Dst]) ->
     {not_implemented,82}.
 %%
 %% @doc opcode=83
 %%
-bs_skip_bits(S,Fail,[Arg,N,Flags]) ->
+bs_skip_bits(_S,_Fail,[_Arg,_N,_Flags]) ->
     {not_implemented,83}.
 %%
 %% @doc opcode=84
 %%
-bs_test_tail(S,Fail,[N]) ->
+bs_test_tail(_S,_Fail,[_N]) ->
     {not_implemented,84}.
 %%
 %% @doc opcode=85
 %%
-bs_save(S,N) ->
+bs_save(_S,_N) ->
     {not_implemented,85}.
 %%
 %% @doc opcode=86
 %%
-bs_restore(S,N) ->
+bs_restore(_S,_N) ->
     {not_implemented,86}.
 %%
 %% @doc opcode=87
 %%
-bs_init(S,N,Flags) ->
+bs_init(_S,_N,_Flags) ->
     {not_implemented,87}.
 %%
 %% @doc opcode=88
 %%
-bs_final(S,Fail,X) ->
+bs_final(_S,_Fail,_X) ->
     {not_implemented,88}.
 %%
 %% @doc opcode=89
 %%
-bs_put_integer(S,Fail,ArgSz,N,{field_flags,Flags},ArgInt) ->
+bs_put_integer(S,Fail,ArgSz,_N,{field_flags,Flags},ArgInt) ->
     Int = fetch(ArgInt, S),
     Sz  = fetch(ArgSz, S),
     case catch (if Flags band ?BSF_LITTLE =/= 0 ->
@@ -767,7 +924,7 @@ bs_put_integer(S,Fail,ArgSz,N,{field_flags,Flags},ArgInt) ->
 %%
 %% @doc opcode=90
 %%
-bs_put_binary(S,Fail,ArgSz,N,{field_flags,Flags},ArgBin) ->
+bs_put_binary(S,Fail,ArgSz,_N,{field_flags,Flags},ArgBin) ->
     Bin = fetch(ArgBin, S),
     Sz  = fetch(ArgSz, S),
     case catch (if Flags band ?BSF_LITTLE =/= 0 ->
@@ -788,7 +945,7 @@ bs_put_binary(S,Fail,ArgSz,N,{field_flags,Flags},ArgBin) ->
 %%
 %% @doc opcode=91
 %%
-bs_put_float(S,Fail,ArgSz,N,{field_flags,Flags},ArgFloat) ->
+bs_put_float(S,Fail,ArgSz,_N,{field_flags,Flags},ArgFloat) ->
     Flt = fetch(ArgFloat, S),
     Sz  = fetch(ArgSz, S),
     case catch (if Flags band ?BSF_LITTLE =/= 0 ->
@@ -809,7 +966,7 @@ bs_put_float(S,Fail,ArgSz,N,{field_flags,Flags},ArgFloat) ->
 %%
 %% @doc opcode=92
 %%
-bs_put_string(S,Len,StrArg) ->
+bs_put_string(S,_Len,StrArg) ->
     String = fetch(StrArg, S),
     BB = <<(S#s.bb)/bits,(list_to_binary(String))/bits>>,
     S1 = store(S#s.br, BB, S),
@@ -817,9 +974,9 @@ bs_put_string(S,Len,StrArg) ->
     next(S2).
 
 %%
-%% @doc opecode=93
+%% @doc opcode=93
 %%
-bs_need_buf(S,N) ->
+bs_need_buf(_S,_N) ->
     {not_implemented,93}.
 
 %%
@@ -899,40 +1056,41 @@ fnegate(S,_Fail,FA1,FDst) ->
     end.
 
 %% @doc opcode=103
-make_fun2(S) ->
+make_fun2(_S) ->
     {not_implemented,103}.
 
 %% @doc opcode=104
-'try'(S,Reg,Fail) ->
+'try'(_S,_Reg,_Fail) ->
     {not_implemented,104}.
 
 %% @doc opcode=105
-try_end(S,Reg) ->
+try_end(_S,_Reg) ->
     {not_implemented,105}.
 
 %% @doc opcode=106
-try_case(S,Reg) ->
+try_case(_S,_Reg) ->
     {not_implemented,106}.
 
 %% @doc opcode=107
-try_case_end(S,Arg) ->
-    {not_implemented,107}.
+try_case_end(S,TryVal) ->
+    fail(S,{f,0},error,{try_clause,fetch(TryVal,S)}).
 
 %% @doc opcode=108
-raise(S,_Arg1,_Arg2) ->
-    {not_implemented,108}.
+raise(S,Class,Reason) ->
+    %% Fixme: more work here
+    fail(S,{f,0},fetch(Class,S),fetch(Reason,S)).
 
 %% @doc opcode=109
-bs_init2(S,Fail,Src,W,R,{field_flags,Flags},Dst) ->
+bs_init2(S,_Fail,_Src,_W,_R,{field_flags,_Flags},Dst) ->
     S1 = S#s { br = Dst },
     next(S1).
 
 %% @doc opcode=110
-bs_bits_to_bytes(S,Fail,Src,Dst) ->
+bs_bits_to_bytes(_S,_Fail,_Src,_Dst) ->
     {not_implemented,110}.
 
 %% @doc opcode=111
-bs_add(S,Fail,[Src1,Src2,Unit],Dest) ->
+bs_add(S,_Fail,[Src1,Src2,Unit],Dest) ->
     Val = fetch(Src2,S)*Unit + fetch(Src1,S),
     next(store(Dest,Val,S)).
 	
@@ -961,7 +1119,7 @@ apply_last(S,Arity,U) ->
 		[IRet|Ys] ->
 		    S1 = S#s { y=Ys },
 		    S2 = store({x,0},Ret,S1),
-		    dispatch(S#s {i=IRet });
+		    dispatch(S2#s {i=IRet }); %% was S?
 		[] ->
 		    Ret  %% ?
 	    end
@@ -986,47 +1144,47 @@ is_function2(S,Fail,A1,A2) ->
 %%
 %% @doc opcode=116
 %%
-bs_start_match2(S,Fail,Ctx,Live,Save,Dst) ->
+bs_start_match2(_S,_Fail,_Ctx,_Live,_Save,_Dst) ->
     {not_implemented,116}.
 %%
 %% @doc opcode=117
 %%
-bs_get_integer2(S,Fail,Ctx,Live,Size,N,{field_flags,Flags},Dst) ->
+bs_get_integer2(_S,_Fail,_Ctx,_Live,_Size,_N,{field_flags,_Flags},_Dst) ->
     {not_implemented,117}.
 %%
 %% @doc opcode=118
 %%
-bs_get_float2(S,Fail,Ctx,Live,Size,N,{field_flags,Flags},Dst) ->
+bs_get_float2(_S,_Fail,_Ctx,_Live,_Size,_N,{field_flags,_Flags},_Dst) ->
     {not_implemented,118}.
 %%
 %% @doc opcode=119
 %%
-bs_get_binary2(S, Fail,Ctx,Live,Size,N,{field_flags,Flags},Dst) ->
+bs_get_binary2(_S, _Fail,_Ctx,_Live,_Size,_N,{field_flags,_Flags},_Dst) ->
     {not_implemented,119}.
 %%
 %% @doc opcode=120
 %%
-bs_skip_bits2(S,Fail,CtxReg,SizeReg,Unit,{field_flags,0}) ->
+bs_skip_bits2(_S,_Fail,_CtxReg,_SizeReg,_Unit,{field_flags,0}) ->
     {not_implemented,120}.
 %%
 %% @doc opcode=121
 %%
-bs_test_tail2(S, Fail, Ctx, N) ->
+bs_test_tail2(_S, _Fail, _Ctx, _N) ->
     {not_implemented,121}.
 %%
 %% @doc opcode=122 
 %%
-bs_save2(S, Ctx, N) ->
+bs_save2(_S, _Ctx, _N) ->
     {not_implemented,122}.    
 %%
 %% @doc opcode=123 
 %%
-bs_restore2(S, Ctx, N) ->
+bs_restore2(_S, _Ctx, _N) ->
     {not_implemented, 123}.
 %%
-%% @doc opcode=124
+%% @doc opcode=124/125/152
 %%
-gc_bif(S,Bif,Fail,Need,Args,Dst) ->
+gc_bif(S,Bif,Fail,_Need,Args,Dst) ->
     case catch apply(erlang,Bif,fetch_args(Args,S)) of
 	{'EXIT',Reason} ->
 	    fail(S,Fail,exit,Reason);
@@ -1036,17 +1194,17 @@ gc_bif(S,Bif,Fail,Need,Args,Dst) ->
 %%
 %% @doc opcode=126
 %%
-bs_final2(S, X, Y) ->
+bs_final2(_S, _X, _Y) ->
     {not_implemented, 126}.
 %%
 %% @doc opcode=127
 %%
-bs_bits_to_bytes2(S, A2,A3) ->
+bs_bits_to_bytes2(_S, _A2,_A3) ->
     {not_implemented, 127}.    
 %%
 %% @doc opcode=128
 %%
-put_literal(S, Index, Dst) ->
+put_literal(_S, _Index, _Dst) ->
     {not_implemented, 128}.
 
 %%
@@ -1060,109 +1218,142 @@ is_bitstr(S,Fail,A1) ->
 %%
 %% @doc opcode=130
 %%
-bs_context_to_binary(S,Dst) ->
+bs_context_to_binary(_S,_Dst) ->
     {not_implemented, 130}.
 %%
 %% @doc opcode=131
 %%
-bs_test_unit(S,Fail,Ctx,N) ->
+bs_test_unit(_S,_Fail,_Ctx,_N) ->
     {not_implemented, 131}.
 %%
 %% @doc opcode=132
 %%
-bs_match_string(S,Fail,Ctx,Bits,String) ->
+bs_match_string(_S,_Fail,_Ctx,_Bits,_String) ->
     {not_implemented, 130}.
 %%
 %% @doc opcode=133
 %%
-bs_init_writable(S) ->
+bs_init_writable(_S) ->
     {not_implemented, 133}.
 %%
 %% @doc opcode=134
 %%
-bs_append(S, Fail, Arg2, W, R, U, Arg6,{field_flags,Flags},Arg8) ->
+bs_append(_S, _Fail, _Arg2, _W, _R, _U, _Arg6,{field_flags,_Flags},_Arg8) ->
     {not_implemented,134}.
 %%
 %% @doc opcode=135
 %%
-bs_private_append(S, Fail, Arg2, U, Arg4, {field_flags,Flags}, Arg6) ->
+bs_private_append(_S, _Fail, _Arg2, _U, _Arg4, {field_flags,_Flags}, _Arg6) ->
     {not_implemented,135}.
 %%
 %% @doc opcode=136
 %%
-trim(S,N,Remaining) ->
+trim(_S,_N,_Remaining) ->
     {not_implemented,136}.
 %%
 %% @doc opcode=137
 %%
-bs_init_bits(S,Fail,Arg2,W,R,{field_flags,Flags},Arg6) ->
+bs_init_bits(_S,_Fail,_Arg2,_W,_R,{field_flags,_Flags},_Arg6) ->
     {not_implemented,137}.
 %%
 %% @doc opcode=138
 %%
-bs_get_utf8(S, Fail, Arg2,Arg3,{field_flags,Flags},Arg4) ->
+bs_get_utf8(_S,_Fail,_Arg2,_Arg3,{field_flags,_Flags},_Arg4) ->
     {not_implemented,138}.
 %%
 %% @doc opcode=139
 %%
-bs_skip_utf8(S, Fail, Arg2, Arg3, {field_flags,Flags}) ->
+bs_skip_utf8(_S,_Fail,_Arg2,_Arg3,{field_flags,_Flags}) ->
     {not_implemented,139}.
 %%
 %% @doc opcode=140
 %%
-bs_get_utf16(S, Fail, Arg2,Arg3,{field_flags,Flags},Arg4) ->
+bs_get_utf16(_S,_Fail,_Arg2,_Arg3,{field_flags,_Flags},_Arg4) ->
     {not_implemented,140}.
 %%
 %% @doc opcode=141
 %%
-bs_skip_utf16(S, Fail, Arg2, Arg3, {field_flags,Flags}) ->
+bs_skip_utf16(_S,_Fail,_Arg2,_Arg3, {field_flags,_Flags}) ->
     {not_implemented,141}.
 %%
 %% @doc opcode=142
 %%
-bs_get_utf32(S, Fail, Arg2,Arg3,{field_flags,Flags},Arg4) ->
+bs_get_utf32(_S,_Fail,_Arg2,_Arg3,{field_flags,_Flags},_Arg4) ->
     {not_implemented,142}.
 %%
 %% @doc opcode=143
 %%
-bs_skip_utf32(S, Fail, Arg2, Arg3, {field_flags,Flags}) ->
+bs_skip_utf32(_S,_Fail,_Arg2,_Arg3,{field_flags,_Flags}) ->
     {not_implemented,143}.
 %%
 %% @doc opcode=144
 %%
-bs_utf8_size(S, Fail, Arg2, Arg3) ->
+bs_utf8_size(_S,_Fail,_Arg2,_Arg3) ->
     {not_implemented,144}.
 %%
 %% @doc opcode=145
 %%
-bs_put_utf8(S, Fail, {field_flags,Flags},Arg3) ->
+bs_put_utf8(_S,_Fail,{field_flags,_Flags},_Arg3) ->
     {not_implemented,145}.
 %%
 %% @doc opcode=146
 %%
-bs_utf16_size(S, Fail, Arg2, Arg3) ->
+bs_utf16_size(_S,_Fail,_Arg2,_Arg3) ->
     {not_implemented,146}.
 %%
 %% @doc opcode=147
 %%
-bs_put_utf16(S, Fail, {field_flags,Flags},Arg3) ->
+bs_put_utf16(_S,_Fail,{field_flags,_Flags},_Arg3) ->
     {not_implemented,147}.
+
 %% @doc opcode=148
-bs_put_utf32(S, Fail, {field_flags,Flags},Arg3) ->
+bs_put_utf32(_S,_Fail,{field_flags,_Flags},_Arg3) ->
     {not_implemented,148}.
+
 %% @doc opcode=149
 on_load(S) ->
-    {not_implemented,149}.
+    io:format("meta op: on_load\n"),  %% exit?
+    next(S).
 
-%% recv_mark/1 -> 150;
-%% recv_set/1 -> 151;
-%% gc_bif3/7 -> 152;
-%% line/1 -> 153;
-%% put_map_assoc/5 -> 154;
-%% put_map_exact/5 -> 155;
-%% is_map/2 -> 156;
-%% has_map_field/3 -> 157;
-%% get_map_element/4 -> 158;
+%% @doc opcode=150
+recv_mark(S,{f,I}) ->
+    next(S#s { mark = I, saved=message:save_message_pos() }).
+
+%% @doc opcode=151
+recv_set(S,{f,I}) ->
+    if S#s.mark == I+1 ->
+	    message:restore_message_pos(S#s.saved);
+       true ->
+	    ok
+    end,
+    next(S).
+
+%% @doc opcode=153
+%%      meta opcode to keep track on line number in stack traces
+%% @enc
+line(S, I) ->
+    io:format("meta op: line ~w\n", I),
+    next(S).
+
+%% @doc opcode=154
+put_map_assoc(_S,_A1,_A2,_A3,_A4,_A5) ->
+    {not_implemented,154}.
+
+%% @doc opcode=155
+put_map_exact(_S,_A1,_A2,_A3,_A4,_A5) ->
+    {not_implemented,155}.
+
+%% @doc opcode=156
+is_map(_S,_A1,_A2) ->
+    {not_implemented,156}.
+
+%% @doc opcode=157
+has_map_field(_S,_A1,_A2,_A3) ->
+    {not_implemented, 157}.
+
+%% @doc opcode=158
+get_map_element(_S,_A1,_A2,_A3,_A4) ->
+    {not_implemented, 158}.
 
 %%
 %% @spec run(Module::atom(), Function::atom(), Args::[term()]) -> term()
@@ -1177,9 +1368,9 @@ run(Mod, F, Args) when is_atom(Mod), is_atom(F), is_list(Args) ->
 		false -> erlang:error({undef,[{Mod,F,Args}]});
 		{value,{_,I}} -> call_(I,LCode,Args)
 	    end;
-	{ok,{Mod1,Exp,LCode}} ->
+	{ok,{Mod1,_Exp,_LCode}} ->
 	    erlang:error({load_error,Mod1});
-	Error ->
+	_Error ->
 	    erlang:error({load_error,Mod})
     end;
 run(File, F, Args) when is_list(File), is_atom(F), is_list(Args) ->
@@ -1190,7 +1381,7 @@ run(File, F, Args) when is_list(File), is_atom(F), is_list(Args) ->
 		false -> erlang:error({undef,[{Mod,F,Args}]});
 		{value,{_,I}} -> call_(I,LCode,Args)
 	    end;
-	Error ->
+	_Error ->
 	    erlang:error({load_error,File})
     end.
 
@@ -1204,10 +1395,6 @@ new_(Args) ->
 %% @private
 call_(I, C, Args) ->
     init_(I, C, new_(Args)).
-
-%% @private
-init_(I, C) ->
-    init_(I, C, new_([])).
 
 %% @private
 init_(I, C, S) ->
@@ -1338,7 +1525,7 @@ fetch_args([], _S) ->
     [].
 
 %% fetch sequence of N registers {x,0} .. {x,N-1}
-fetch_regs(0, S) ->    [];
+fetch_regs(0, _S) ->    [];
 fetch_regs(N, S) ->    fetch_regs(N-1, S, []).
 
 fetch_regs(0, S, Regs) -> 
@@ -1352,7 +1539,7 @@ make_blank(Dst, S) ->
 store({x,I},Val,S=#s{x=X}) ->
     NX = size(X),
     if I >= NX ->
-	    X1 = list_to_tuple(tuple_to_list(X)++fill((I+1)-NX,[],Val)),
+	    X1 = list_to_tuple(tuple_to_list(X)++fill_((I+1)-NX,[],Val)),
 	    S#s { x = X1 };
        true ->
 	    S#s { x = setelement(I+1, X, Val) }
@@ -1360,7 +1547,7 @@ store({x,I},Val,S=#s{x=X}) ->
 store({fr,I},Val,S=#s{f=F}) ->
     NF = size(F),
     if NF =< I ->
-	    F1 = list_to_tuple(tuple_to_list(F)++fill((I+1)-NF,0.0,Val)),
+	    F1 = list_to_tuple(tuple_to_list(F)++fill_((I+1)-NF,0.0,Val)),
 	    S#s { f = F1 };
        true ->
 	    S#s { f = setelement(I+1, F, Val) }
@@ -1370,17 +1557,18 @@ store({y,I}, Val, S=#s{y=Y}) ->
 
 %% @private
 %% set nth element counting from 0!
-set_nth_element(0, [H|T], V) -> [V|T];
+set_nth_element(0, [_H|T], V) -> [V|T];
 set_nth_element(I, [H|T], V) -> [H | set_nth_element(I-1,T,V)].
 
 %% @private
 %% generate a lists of N nils (lists:duplicate!)
-fill(N) ->
-    fill(N,[],[]).
 
-fill(0,_D,_V) -> [];
-fill(1,_D,V) -> [V];
-fill(I,D,V) -> [D | fill(I-1,D,V)].
+%%fill(N) ->
+%%  fill_(N,[],[]).
+
+fill_(0,_D,_V) -> [];
+fill_(1,_D,V) -> [V];
+fill_(I,D,V) -> [D | fill_(I-1,D,V)].
 
 %% @private
 allocate_(0,_D,Ys) -> Ys;
@@ -1400,7 +1588,7 @@ fail(S, {f,0}, Class, Reason) ->
 	    S0 = store({x,0},?blank,S),
 	    S1 = store({x,1},Class,S0),
 	    S2 = store({x,2},Reason,S1),
-	    dispatch(S#s { i=If, y=Ys });
+	    dispatch(S2#s { i=If, y=Ys }); %% was S?
 	[] ->
 	    if Class == thrown ->
 		    exit(no_catch);

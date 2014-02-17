@@ -13,7 +13,8 @@
 	 next/1,
 	 remove/0
 	]).
-
+-export([save_message_pos/0,
+	 restore_message_pos/1]).
 %% @doc
 %%    Restart message queue processing and return the first message
 %%    or 'empty' if not message exist.
@@ -35,8 +36,14 @@ first() ->
 			end, 0),
     get('$msg').
 
+-spec current() -> empty | {message,Message::term()}.
 current() ->
-    get('$msg').
+    case get('$msg') of
+	undefined -> first();
+	timeout   -> first();
+	empty     -> empty;
+	M -> M
+    end.
 
 -spec next() -> empty |  {message,Message::term()}.
 
@@ -91,9 +98,16 @@ remove() ->
 			  nomatch
 		  end
 	  end, 0),
+    erase('$msg'),
     if M =:= timeout -> false;
        true -> M
     end.
+
+save_message_pos() ->
+    get('$msg_pos').
+
+restore_message_pos(Pos) ->
+    put('$msg_pos', Pos).
 
 set_message_pos_(Offs) ->
     Pos = get_message_pos_(),
@@ -106,4 +120,3 @@ get_message_pos_() ->
 	-1 -> 0;
 	N -> N
     end.
-	    
