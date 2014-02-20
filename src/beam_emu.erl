@@ -17,7 +17,6 @@
 %% Instruction set. The first argument is the Beam Instruction State
 %% then the instruction arguments (so -1 on arity to the orgininal)
 %%
-
 -export([label/2]).              %% 1
 -export([func_info/4]).          %% 2
 -export([int_code_end/1]).       %% 3
@@ -26,10 +25,9 @@
 -export([call_only/3]).          %% 6
 -export([call_ext/3]).           %% 7
 -export([call_ext_last/4]).      %% 8
-%%-export([bif0/3]).               %% 9
-%%-export([bif1/5]).               %% 10
-%%-export([bif2/6]).               %% 11
--export([bif/5]).
+-export([bif0/4]).               %% 9
+-export([bif1/5]).               %% 10
+-export([bif2/6]).               %% 11
 -export([allocate/3]).           %% 12
 -export([allocate_heap/4]).      %% 13
 -export([allocate_zero/3]).      %% 14
@@ -45,7 +43,6 @@
 -export([loop_rec_end/2]).       %% 24
 -export([wait/2]).               %% 25
 -export([wait_timeout/3]).       %% 26
-
 -export([m_plus/5]).             %% 27*
 -export([m_minus/5]).            %% 28*
 -export([m_times/5]).            %% 29*
@@ -58,7 +55,6 @@
 -export([int_bsl/5]).            %% 36*
 -export([int_bsr/5]).            %% 37*
 -export([int_bnot/4]).           %% 38*
-
 -export([is_lt/4]).              %% 39
 -export([is_ge/4]).              %% 40
 -export([is_eq/4]).              %% 41
@@ -99,9 +95,6 @@
 -export([make_fun/4]).           %% 76*
 -export([is_function/3]).        %% 77
 -export([call_ext_only/3]).      %% 78
-
-
-%% not generated since?
 -export([bs_start_match/3]).     %% 79*
 -export([bs_get_integer/3]).     %% 80*
 -export([bs_get_float/3]).       %% 81*
@@ -112,16 +105,13 @@
 -export([bs_restore/2]).         %% 86*
 -export([bs_init/3]).            %% 87*
 -export([bs_final/3]).           %% 88*
-
 -export([bs_put_integer/6]).     %% 89
 -export([bs_put_binary/6]).      %% 90
 -export([bs_put_float/6]).       %% 91
 -export([bs_put_string/3]).      %% 92
 -export([bs_need_buf/2]).        %% 93*
-
 -export([fclearerror/1]).        %% 94
 -export([fcheckerror/2]).        %% 95
-
 -export([fmove/3]).              %% 96
 -export([fconv/3]).              %% 97
 -export([fadd/5]).               %% 98
@@ -129,23 +119,19 @@
 -export([fmul/5]).               %% 100
 -export([fdiv/5]).               %% 101
 -export([fnegate/4]).            %% 102
-
 -export([make_fun2/1]).          %% 103*
 -export(['try'/3]).              %% 104*
 -export([try_end/2]).            %% 105*
 -export([try_case/2]).           %% 106*
 -export([try_case_end/2]).       %% 107*
 -export([raise/3]).              %% 108*
-
 -export([bs_init2/7]).           %% 109
 -export([bs_bits_to_bytes/4]).   %% 110*
 -export([bs_add/4]).             %% 111
 -export([apply/2]).              %% 112
 -export([apply_last/3]).         %% 113
-
 -export([is_boolean/3]).         %% 114
 -export([is_function2/4]).       %% 115
-
 -export([bs_start_match2/6]).    %% 116*
 -export([bs_get_integer2/8]).    %% 117*
 -export([bs_get_float2/8]).      %% 118*
@@ -154,16 +140,14 @@
 -export([bs_test_tail2/4]).      %% 121*
 -export([bs_save2/3]).           %% 122*
 -export([bs_restore2/3]).        %% 123*
-%%-export([gc_bif1/6]).            %% 124
-%%-export([gc_bif2/7]).            %% 125
--export([gc_bif/6]).
+-export([gc_bif1/6]).            %% 124
+-export([gc_bif2/7]).            %% 125
 -export([bs_final2/3]).          %% 126*
 -export([bs_bits_to_bytes2/3]).  %% 127*
 -export([put_literal/3]).        %% 128*
 -export([is_bitstr/3]).          %% 129
 -export([bs_context_to_binary/2]). %% 130
 -export([bs_test_unit/4]).       %% 131
-
 -export([bs_match_string/5]).    %% 132
 -export([bs_init_writable/1]).   %% 133
 -export([bs_append/9]).          %% 134
@@ -181,23 +165,26 @@
 -export([bs_utf16_size/4]).      %% 146
 -export([bs_put_utf16/4]).       %% 147
 -export([bs_put_utf32/4]).       %% 148
-
 -export([on_load/1]).            %% 149
 -export([recv_mark/2]).          %% 150
 -export([recv_set/2]).           %% 151
-%% -export([gc_bif3/8]).            %% 152
+-export([gc_bif3/8]).            %% 152
 -export([line/2]).               %% 153
-
 -export([put_map_assoc/6]).      %% 154*
 -export([put_map_exact/6]).      %% 155*
 -export([is_map/3]).             %% 156*
 -export([has_map_field/4]).      %% 157*
 -export([get_map_element/5]).    %% 158*
 	 
+%% generated from beam_load
+-export([bif/5]).
+-export([gc_bif/6]).
 	 
 -import(lists, [map/2, foldr/3, reverse/1]).
 
--define(blank, '\0').
+-define(BLANK, []).
+-define(THE_NON_VALUE(S), S#s.non).
+-define(is_non_value(X,S), (?THE_NON_VALUE(S) =:= X)).
 
 -define(BSF_ALIGNED, 1).
 -define(BSF_LITTLE,  2).
@@ -227,6 +214,7 @@
 	   tuple_dst,
 	   tuple_arity = 0,
 	   tuple_data = [],
+	   non,         %% non value
 	   br,          %% destination bit/binary reg
 	   bb = <<>>    %% binary buffer
 	  }).
@@ -300,30 +288,37 @@ call_ext_last(S, Arity,{extfunc,Mod,Fun,Arity},Dealloc) ->
 %%
 %% @doc opcode=9
 %%
-bif(S, Bif,nofail,[],Dst) ->
+bif0(S, Bif, nofail, Dst) ->
     Val = apply(erlang,Bif,[]),
-    next(store(Dst,Val,S));
+    next(store(Dst,Val,S)).
 
 %%
 %% @doc opcode=10
 %%
-bif(S,Bif,Fail,[A1],Dst) ->
+bif1(S, Bif, Fail, A1, Dst) ->
     case catch apply(erlang,Bif,[fetch(A1,S)]) of
 	{'EXIT',Reason} ->
 	    fail(S, Fail,exit,Reason);
 	Val ->
 	    next(store(Dst,Val,S))
-    end;
+    end.
+
 %%
 %% @doc opcode=11
 %%
-bif(S,Bif,Fail,[A1,A2],Dst) ->
+bif2(S, Bif, Fail, A1, A2, Dst) ->
     case catch apply(erlang,Bif,[fetch(A1,S),fetch(A2,S)]) of
 	{'EXIT',Reason} ->
 	    fail(S, Fail,exit,Reason);
 	Val ->
 	    next(store(Dst,Val,S))
     end.
+
+%% @hidden
+%%  entry point from beam_load (maybe translate)
+bif(S,Bif,Fail,[],Dst) ->  bif0(S,Bif,Fail,Dst);
+bif(S,Bif,Fail,[A1],Dst) -> bif1(S,Bif,Fail,A1,Dst);
+bif(S,Bif,Fail,[A1,A2],Dst) -> bif2(S,Bif,Fail,A1,A2,Dst).
 
 %%	
 %% @doc opcode=12
@@ -346,13 +341,13 @@ allocate_heap(S, StackNeed,_HeapNeed,_Live) ->
 %%
 allocate_zero(S,StackNeed,_Live) ->
     %% FIXME: maybe kill some regs
-    Ys = allocate_(StackNeed,?blank,S#s.y),
+    Ys = allocate_(StackNeed,?BLANK,S#s.y),
     next(S#s { y = Ys }).
 
 %% @doc opcode=15	    
 allocate_heap_zero(S,StackNeed,_HeapNeed,_Live) ->
     %% FIXME: maybe kill some regs
-    Ys = allocate_(StackNeed,?blank,S#s.y),
+    Ys = allocate_(StackNeed,?BLANK,S#s.y),
     next(S#s { y = Ys }).
 	
 %% @doc opcode=16
@@ -709,7 +704,7 @@ catch_end(S,Dst) ->
 	S1 = make_blank(Dst,S),  %% just for the record
 	Cs = tl(S1#s.cs),
 	X0 = fetch({x,0},S1),
-	S2 = if X0 == ?blank ->
+	S2 = if ?is_non_value(X0,S) ->
 		     X1 = fetch({x,1},S1),
 		     X2 = fetch({x,2},S1),
 		     if X1 == thrown ->
@@ -1064,8 +1059,18 @@ make_fun2(_S) ->
     {not_implemented,104}.
 
 %% @doc opcode=105
-try_end(_S,_Reg) ->
-    {not_implemented,105}.
+try_end(S,Reg) ->
+    S1 = make_blank(Reg,S),  %% just for the record
+    Cs = tl(S1#s.cs),
+    X0 = fetch({x,0},S1),
+    if ?is_non_value(X0,S1) ->
+	    S2 = store({x,0}, fetch({x,1},S1), S1),
+	    S3 = store({x,1}, fetch({x,2},S1), S2),
+	    S4 = store({x,2}, fetch({x,3},S1), S3),
+	    next(S4#s { cs = Cs });
+       true ->
+	    next(S1#s { cs = Cs })
+    end.   
 
 %% @doc opcode=106
 try_case(_S,_Reg) ->
@@ -1182,15 +1187,27 @@ bs_save2(_S, _Ctx, _N) ->
 bs_restore2(_S, _Ctx, _N) ->
     {not_implemented, 123}.
 %%
-%% @doc opcode=124/125/152
+%% @doc opcode=124
 %%
-gc_bif(S,Bif,Fail,_Need,Args,Dst) ->
-    case catch apply(erlang,Bif,fetch_args(Args,S)) of
+gc_bif1(S,Bif,Fail,_Need,A1,Dst) ->
+    case catch apply(erlang,Bif,[fetch(A1,S)]) of
 	{'EXIT',Reason} ->
 	    fail(S,Fail,exit,Reason);
 	Val ->
 	    next(store(Dst,Val,S))
     end.
+
+%%
+%% @doc opcode=125
+%%
+gc_bif2(S,Bif,Fail,_Need,A1,A2,Dst) ->
+    case catch apply(erlang,Bif,[fetch(A1,S),fetch(A2,S)]) of
+	{'EXIT',Reason} ->
+	    fail(S,Fail,exit,Reason);
+	Val ->
+	    next(store(Dst,Val,S))
+    end.
+
 %%
 %% @doc opcode=126
 %%
@@ -1328,6 +1345,23 @@ recv_set(S,{f,I}) ->
     end,
     next(S).
 
+%% @doc opcode=152
+gc_bif3(S,Bif,Fail,_Need,A1,A2,A3,Dst) ->
+    case catch apply(erlang,Bif,[fetch(A1,S),fetch(A2,S),fetch(A3,S)]) of
+	{'EXIT',Reason} ->
+	    fail(S,Fail,exit,Reason);
+	Val ->
+	    next(store(Dst,Val,S))
+    end.
+
+%% @hidden dispatch from beam_load
+gc_bif(S,Bif,Fail,_Need,[A1],Dst) -> 
+    gc_bif1(S,Bif,Fail,_Need,A1,Dst);
+gc_bif(S,Bif,Fail,_Need,[A1,A2],Dst) ->
+    gc_bif2(S,Bif,Fail,_Need,A1,A2,Dst);
+gc_bif(S,Bif,Fail,_Need,[A1,A2,A3],Dst) ->
+    gc_bif3(S,Bif,Fail,_Need,A1,A2,A3,Dst).
+
 %% @doc opcode=153
 %%      meta opcode to keep track on line number in stack traces
 %% @enc
@@ -1389,7 +1423,8 @@ run(File, F, Args) when is_list(File), is_atom(F), is_list(Args) ->
 new_(Args) ->
     #s { x = list_to_tuple(Args),
 	 f = {0.0, 0.0},
-	 y = []
+	 y = [],
+	 non = make_ref()    %% must be different from other terms!
        }.
 
 %% @private
@@ -1519,10 +1554,10 @@ fetch_(Src, S) ->
     erlang:display({fetch,Src}),
     exit({function_clause,S}).
 
-fetch_args([A|As], S) ->
-    [fetch(A,S) | fetch_args(As,S)];
-fetch_args([], _S) ->
-    [].
+%% fetch_args([A|As], S) ->
+%%     [fetch(A,S) | fetch_args(As,S)];
+%% fetch_args([], _S) ->
+%%    [].
 
 %% fetch sequence of N registers {x,0} .. {x,N-1}
 fetch_regs(0, _S) ->    [];
@@ -1534,7 +1569,7 @@ fetch_regs(I, S, Regs) ->
     fetch_regs(I-1,S,[fetch({x,I},S) | Regs]).
 
 make_blank(Dst, S) ->
-    store(Dst, ?blank, S).
+    store(Dst, ?BLANK, S).
 
 store({x,I},Val,S=#s{x=X}) ->
     NX = size(X),
@@ -1585,7 +1620,7 @@ fail(S, {f,0}, Class, Reason) ->
 	[{{f,If},U0}|_] ->
 	    U1 = length(S#s.y),
 	    Ys = deallocate_(U1-U0, S#s.y),
-	    S0 = store({x,0},?blank,S),
+	    S0 = store({x,0},?BLANK,S),
 	    S1 = store({x,1},Class,S0),
 	    S2 = store({x,2},Reason,S1),
 	    dispatch(S2#s { i=If, y=Ys }); %% was S?
