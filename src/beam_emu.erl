@@ -127,7 +127,7 @@
 -export([raise/3]).              %% 108*
 -export([bs_init2/7]).           %% 109
 -export([bs_bits_to_bytes/4]).   %% 110*
--export([bs_add/4]).             %% 111
+-export([bs_add/6]).             %% 111
 -export([apply/2]).              %% 112
 -export([apply_last/3]).         %% 113
 -export([is_boolean/3]).         %% 114
@@ -173,8 +173,27 @@
 -export([put_map_assoc/6]).      %% 154*
 -export([put_map_exact/6]).      %% 155*
 -export([is_map/3]).             %% 156*
--export([has_map_field/4]).      %% 157*
--export([get_map_element/5]).    %% 158*
+-export([has_map_fields/4]).     %% 157*
+-export([get_map_elements/4]).   %% 158*
+-export([is_tagged_tuple/5]).    %% 159;
+-export([build_stacktrace/1]).   %% 160;
+-export([raw_raise/1]).          %% 161;
+-export([get_hd/3]).             %% 162;
+-export([get_tl/3]).             %% 163;
+-export([put_tuple2/3]).         %% 164;
+-export([bs_get_tail/4]).        %% 165;
+-export([bs_start_match3/5]).    %% 166;
+-export([bs_get_position/4]).    %% 167;
+-export([bs_set_position/3]).    %% 168;
+-export([swap/3]).               %% 169;
+-export([bs_start_match4/5]).    %% 170;
+-export([make_fun3/4]).          %% 171;
+-export([init_yregs/2]).         %% 172;
+-export([recv_marker_bind/3]).   %% 173;
+-export([recv_marker_clear/2]).  %% 174;
+-export([recv_marker_reserve/2]). %% 175;
+-export([recv_marker_use/2]).    %% 176;
+
 	 
 %% generated from beam_load
 -export([bif/5]).
@@ -1095,7 +1114,7 @@ bs_bits_to_bytes(_S,_Fail,_Src,_Dst) ->
     {not_implemented,110}.
 
 %% @doc opcode=111
-bs_add(S,_Fail,[Src1,Src2,Unit],Dest) ->
+bs_add(S,_Fail, Src1,Src2, Unit,Dest) ->
     Val = fetch(Src2,S)*Unit + fetch(Src1,S),
     next(store(Dest,Val,S)).
 	
@@ -1189,7 +1208,7 @@ bs_restore2(_S, _Ctx, _N) ->
 %%
 %% @doc opcode=124
 %%
-gc_bif1(S,Bif,Fail,_Need,A1,Dst) ->
+gc_bif1(S,Bif,Fail,_Live,A1,Dst) ->
     case catch apply(erlang,Bif,[fetch(A1,S)]) of
 	{'EXIT',Reason} ->
 	    fail(S,Fail,exit,Reason);
@@ -1200,7 +1219,7 @@ gc_bif1(S,Bif,Fail,_Need,A1,Dst) ->
 %%
 %% @doc opcode=125
 %%
-gc_bif2(S,Bif,Fail,_Need,A1,A2,Dst) ->
+gc_bif2(S,Bif,Fail,_Live,A1,A2,Dst) ->
     case catch apply(erlang,Bif,[fetch(A1,S),fetch(A2,S)]) of
 	{'EXIT',Reason} ->
 	    fail(S,Fail,exit,Reason);
@@ -1228,7 +1247,7 @@ put_literal(_S, _Index, _Dst) ->
 %% @doc opcode=129
 %%
 is_bitstr(S,Fail,A1) ->
-    case is_bitstr(fetch(A1,S)) of
+    case is_bitstring(fetch(A1,S)) of
 	false -> fail(S,Fail);
 	true -> next(S)
     end.
@@ -1346,7 +1365,7 @@ recv_set(S,{f,I}) ->
     next(S).
 
 %% @doc opcode=152
-gc_bif3(S,Bif,Fail,_Need,A1,A2,A3,Dst) ->
+gc_bif3(S,Bif,Fail,_Live,A1,A2,A3,Dst) ->
     case catch apply(erlang,Bif,[fetch(A1,S),fetch(A2,S),fetch(A3,S)]) of
 	{'EXIT',Reason} ->
 	    fail(S,Fail,exit,Reason);
@@ -1382,12 +1401,88 @@ is_map(_S,_A1,_A2) ->
     {not_implemented,156}.
 
 %% @doc opcode=157
-has_map_field(_S,_A1,_A2,_A3) ->
+has_map_fields(_S,_A1,_A2,_A3) ->
     {not_implemented, 157}.
 
 %% @doc opcode=158
-get_map_element(_S,_A1,_A2,_A3,_A4) ->
+get_map_elements(_S,_A1,_A2,_A3) ->
     {not_implemented, 158}.
+
+%% @doc opcode=159
+is_tagged_tuple(_S,_A1,_A2,_A3,_A4) ->
+    {not_implemented, 159}.
+
+%% @doc opcode=160
+build_stacktrace(_S) ->
+    {not_implemented, 160}.
+
+%% @doc opcode=161
+raw_raise(_S) ->
+    {not_implemented, 161}.
+
+%% @doc opcode=162
+get_hd(_S,_A1,_A2) ->
+    {not_implemented, 162}.
+
+%% @doc opcode=163
+get_tl(_S,_A1,_A2) ->
+    {not_implemented, 163}.
+
+%% @doc opcode=164
+put_tuple2(_S,_A1,_A2) ->
+    {not_implemented, 164}.
+
+%% @doc opcode=165
+bs_get_tail(_S,_A1,_A2,_A3) ->
+    {not_implemented, 165}.
+
+%% @doc opcode=166
+bs_start_match3(_S,_A1,_A2,_A3,_A4) ->
+    {not_implemented, 166}.
+
+%% @doc opcode=167
+bs_get_position(_S,_A1,_A2,_A3) ->
+    {not_implemented, 167}.
+
+%% @doc opcode=168
+bs_set_position(_S,_A1,_A2) ->
+    {not_implemented, 168}.
+
+%% @doc opcode=169
+swap(S,A1,A2) ->
+    V1 = fetch(A1,S),
+    V2 = fetch(A2,S),
+    S1 = store(A2,V1,S),
+    S2 = store(A1,V2,S1),
+    next(S2).
+
+%% @doc opcode=170
+bs_start_match4(_S,_A1,_A2,_A3,_A4) ->
+    {not_implemented, 170}.
+
+%% @doc opcode=171
+make_fun3(_S,_A1,_A2,_A3) ->
+    {not_implemented, 171}.
+
+%% @doc opcode=172
+init_yregs(_S,_A1) ->
+    {not_implemented, 172}.
+
+%% @doc opcode=173
+recv_marker_bind(_S,_A1,_A2) ->
+    {not_implemented, 173}.
+
+%% @doc opcode=174
+recv_marker_clear(_S,_A1) ->
+    {not_implemented, 174}.
+
+%% @doc opcode=175
+recv_marker_reserve(_S,_A1) ->
+    {not_implemented, 175}.
+
+%% @doc opcode=176
+recv_marker_use(_S,_A1) ->
+    {not_implemented, 176}.
 
 %%
 %% @spec run(Module::atom(), Function::atom(), Args::[term()]) -> term()
